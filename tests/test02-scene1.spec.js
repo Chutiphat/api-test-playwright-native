@@ -25,12 +25,11 @@ test.describe('Postman Collection: test02 - Scene 1', () => {
         await utils.LogResponse(response);
         const rs = await response.json();
 
-        // ✅ รวมการเช็กทุกอย่างไว้ใน data_assert ก้อนเดียว
+        // รวมการเช็กทุกอย่างไว้ใน data_assert ก้อนเดียว
         // เพื่อให้ Utils.js แสดงผลแบบ expected vs actual ใน Report อัตโนมัติ
         const data_assert = {
             "time_last_update_unix": 1775001751,
             "base_code": "THB",
-            // ย้ายมาเช็กที่นี่โดยใช้ Regex
             "time_last_update_utc": /^Wed, 01 Apr 2026 \d{2}:\d{2}:\d{2} \+\d{4}$/,
             "rates": {
                 "THB": 1,
