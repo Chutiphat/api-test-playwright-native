@@ -1,0 +1,66 @@
+สำหรับการเริ่มต้นใช้งาน Jenkins ครั้งแรกบนเครื่อง macOS ของคุณ วิธีที่ง่ายและเป็นมาตรฐานที่สุดคือการใช้ Homebrew ครับ
+
+  ทำตามขั้นตอนแบบละเอียดนี้ได้เลยครับ:
+
+  1. ติดตั้ง Java (Jenkins ต้องการ Java ในการรัน)
+  เปิด Terminal แล้วรันคำสั่งนี้ครับ:
+   1 brew install openjdk@17
+  (ถ้าคุณยังไม่มี Homebrew ให้ติดตั้งก่อนที่ brew.sh (https://brew.sh))
+
+  ---
+
+  2. ติดตั้ง Jenkins
+  รันคำสั่งนี้เพื่อติดตั้ง Jenkins เวอร์ชัน LTS (เสถียรที่สุด):
+
+   1 brew install jenkins-lts
+
+  ---
+
+  3. เริ่มต้นใช้งาน Jenkins
+  สั่งให้ Jenkins เริ่มทำงานเป็น Service ในเครื่องคุณ:
+   1 brew services start jenkins-lts
+  หลังจากรันคำสั่งนี้ Jenkins จะรันอยู่ที่พอร์ต 8080 เสมอ แม้คุณจะรีสตาร์ทเครื่องครับ
+
+  ---
+
+  4. การตั้งค่าครั้งแรก (Unlock Jenkins)
+   1. เปิด Browser แล้วไปที่: http://localhost:8080
+   2. คุณจะเห็นหน้าจอ "Unlock Jenkins" ซึ่งจะถามหา Password
+   3. กลับไปที่ Terminal แล้วรันคำสั่งนี้เพื่อดู Password ครับ:
+   1     cat ~/.jenkins/secrets/initialAdminPassword
+   4. Copy รหัสที่ได้ไปวางในช่องบน Browser แล้วกด Continue
+
+  ---
+
+  5. ติดตั้ง Plugins และสร้าง User
+   1. เลือก "Install suggested plugins" (รอจนกว่าจะโหลดเสร็จทั้งหมด)
+   2. สร้าง Admin User: ตั้ง Username และ Password ที่คุณจำได้ง่ายๆ
+   3. กด Save and Finish จนถึงหน้า Dashboard หลักของ Jenkins
+
+  ---
+
+  6. ติดตั้ง Plugins สำคัญสำหรับ Playwright (ต้องทำ!)
+  เพื่อให้โปรเจคที่คุณเขียนรันได้บน Jenkins คุณต้องลง 2 ปลั๊กอินนี้เพิ่มครับ:
+   1. ไปที่ Manage Jenkins ➔ Plugins ➔ Available plugins
+   2. ค้นหาและติ๊กถูกที่:
+       * NodeJS: (สำหรับรันคำสั่ง npm)
+       * HTML Publisher: (สำหรับแสดงผลลัพธ์เทส playwright-report)
+   3. กด Install without restart
+
+  ---
+
+  7. ตั้งค่า NodeJS ใน Jenkins
+   1. ไปที่ Manage Jenkins ➔ Tools (หรือ Global Tool Configuration)
+   2. เลื่อนลงมาที่หัวข้อ NodeJS ➔ กด Add NodeJS
+   3. ตั้งชื่อว่า node20 (หรือชื่อที่คุณชอบ)
+   4. ติ๊กถูกที่ Install automatically และเลือกเวอร์ชันล่าสุด (เช่น Node 20.x)
+   5. กด Save
+
+  ---
+
+  🚀 ขั้นตอนสุดท้าย: สร้าง Job เพื่อรันเทส
+   1. ที่หน้า Dashboard กด New Item
+   2. ตั้งชื่อโปรเจค เลือก Pipeline แล้วกด OK
+   3. เลื่อนลงไปที่ส่วน Pipeline ➔ เลือก Pipeline script from SCM
+   4. ใส่ URL ของ GitHub ของคุณ: https://github.com/Chutiphat/api-test-playwright-native.git
+   5. กด Save และลองกด Build Now ได้เลยครับ!
