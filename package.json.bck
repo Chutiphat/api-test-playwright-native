@@ -1,0 +1,23 @@
+{
+  "name": "playwright-api-test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ci": "playwright test --reporter=html,list",
+    "test:scene1": "playwright test tests/test02-scene1.spec.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.59.0",
+    "@types/node": "^25.5.0",
+    "newman": "^6.2.2"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1"
+  }
+}
