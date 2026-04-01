@@ -1,89 +1,97 @@
 # 📘 API Test Automation (Playwright Native)
 
-โปรเจคนี้ใช้แนวคิด **Modular Design** (แยกส่วนการทำงาน) เพื่อให้โค้ดอ่านง่าย แก้ไขที่เดียว และรองรับการทำ E2E Flow ที่ซับซ้อนได้อย่างยืดหยุ่น
+โปรเจคสำหรับทดสอบ API แบบอัตโนมัติ โดยใช้ Playwright Framework ออกแบบตามโครงสร้าง Modular เพื่อความยืดหยุ่นและการดูแลรักษาที่ง่ายในระดับองค์กร
 
 ---
 
-## 📂 1. โครงสร้างโฟลเดอร์ (Folder Structure)
+## 🚀 การเริ่มต้นใช้งาน (Quick Start for Team)
 
-```text
-api-test-playwright-native/
-├── lib/                     # 🧠 ส่วนสมองและเครื่องมือกลาง (The Engine)
-│   ├── api/                 # 🚀 API Definitions (เส้นหลัก)
-│   │   ├── AccountApi.js    # Logic การยิง API ของแต่ละ Service
-│   │   └── ...              # (เพิ่มไฟล์ตาม Service เช่น OrderApi, UserApi)
-│   ├── GlobalVars.js        # 📦 ตัวเก็บตัวแปรกลาง (pm.globals)
-│   ├── TestHelper.js        # 🛠️ ตัวช่วยสร้าง UUID, Date, และข้อมูลสุ่ม
-│   └── Utils.js             # ✅ ตัวตรวจสอบข้อมูล (Assertion Engine)
-├── tests/                   # 🧪 ส่วนสคริปต์ทดสอบ (Test Scenarios)
-│   ├── test02-scene1.spec.js# เทสเคสแยกตาม Feature หรือ Scenario
-│   └── bck/                 # ไฟล์สำรองหรือตัวอย่างดั้งเดิม
-├── .env                     # 🔑 ตั้งค่า URL/Secrets สำหรับรันในเครื่อง (Local)
-├── Jenkinsfile              # ⚙️ สคริปต์ควบคุมการรันอัตโนมัติบน Jenkins
-├── playwright.config.js     # 🛠️ คอนฟิกหลักของ Playwright (Timeout, Reporter)
-├── package.json             # 📄 รายการ Library และคำสั่งรันเทส (Scripts)
-└── .gitignore               # 🚫 สิ่งที่ไม่ต้องการให้ขึ้น Git (node_modules, .env)
-```
-
----
-
-## 🔍 2. รายละเอียดส่วนประกอบสำคัญ (Core Components)
-
-### 🚀 **lib/api/ (API Repository)**
-*   **หน้าที่**: เก็บ URL และวิธีการยิง API (Method, Path) ของแต่ละเส้น
-*   **การดูแลรักษา**: หาก API เปลี่ยน URL หรือ Path ให้แก้ที่นี่ที่เดียว ทุกไฟล์เทสจะอัปเดตตามทันที
-*   **หลักการ**: 1 Service = 1 ไฟล์ (เช่น `AccountApi.js`, `PaymentApi.js`)
-
-### ✅ **lib/Utils.js (The Assertion Engine)**
-*   **หน้าที่**: เป็นตัวตรวจสอบ JSON Response ให้เหมือนใน Postman
-*   **ฟีเจอร์เด่น**: รองรับการตรวจสอบแบบ `mandatory` (ต้องมีค่า), `optional` (มีก็ได้ไม่มีก็ได้), **Regex** (ตรวจสอบรูปแบบ), และ **Data Type** (เช่น `TYPE_STRING`, `TYPE_NUMBER`)
-*   **การใช้งาน**: เรียก `utils.TestSuccess(expectedData, response)`
-
-### 📦 **lib/GlobalVars.js (State Management)**
-*   **หน้าที่**: จำลอง `pm.globals` ใน Postman ใช้สำหรับเก็บค่าจาก API หนึ่งไปใช้อีก API หนึ่ง
-*   **การใช้งาน**: `pmGlobals.set('accountNo', '123')` และ `pmGlobals.get('accountNo')`
-*   **CI/CD**: รองรับการดึงค่าจาก Environment Variables ของ Jenkins อัตโนมัติ
-
-### 🛠️ **lib/TestHelper.js (Utilities)**
-*   **หน้าที่**: ฟังก์ชันช่วยสร้างข้อมูล เช่น `generateApiHeaders()` เพื่อสร้าง UUID และ TraceParent ใหม่ทุกครั้งที่รัน
-
----
-
-## 🔄 3. ขั้นตอนการทำงาน (Workflow)
-
-### **เมื่อต้องการเพิ่ม API เส้นใหม่:**
-1.  เพิ่ม URL ของ Service นั้นใน `lib/GlobalVars.js` และไฟล์ `.env`
-2.  สร้างไฟล์ใน `lib/api/` เพื่อเขียนฟังก์ชันการยิง API นั้น
-3.  สร้างไฟล์ `.spec.js` ใน `tests/` เพื่อเขียน Scenario การทดสอบ
-
-### **การรันเทส (Commands):**
-*   **รันทั้งหมด**: `npx playwright test`
-*   **รันเฉพาะไฟล์**: `npx playwright test tests/my-test.spec.js`
-*   **ดู Report**: `npx playwright show-report`
-
----
-
-## ☁️ 4. การรันบน Jenkins (CI/CD)
-*   โปรเจคนี้รองรับการรันผ่าน **Jenkins Pipeline** โดยใช้ไฟล์ `Jenkinsfile`
-*   สามารถส่งพารามิเตอร์ `ACCOUNT_URL` หรือเลือก `TEST_SCOPE` ได้จากหน้าจอ Jenkins โดยไม่ต้องแก้โค้ด
-
----
-
-## 💡 คำแนะนำสำหรับคนที่จะมา Maintain ต่อ:
-1.  **ห้ามแก้ไฟล์ Utils.js**: ถ้าไม่จำเป็น เพราะเป็นหัวใจของการตรวจสอบข้อมูล
-2.  **แยก Scene ให้ชัดเจน**: 1 ไฟล์ `.spec.js` ควรเป็น 1 Scenario ที่อ่านแล้วเข้าใจง่าย
-3.  **ใช้ .env เสมอ**: อย่าใส่ URL จริงลงในโค้ด ให้ใส่ผ่าน `.env` หรือ `GlobalVars` เพื่อความปลอดภัยและความยืดหยุ่น
-
----
-
-## 🚀 การตั้งค่าเครื่องสำหรับทีมใหม่ (Setup)
+### 1. การตั้งค่าเครื่อง (Setup)
 ```bash
 # 1. Clone โปรเจค
 git clone https://github.com/Chutiphat/api-test-playwright-native.git
 cd api-test-playwright-native
 
-# 2. ติดตั้ง Library และ Browsers
+# 2. ติดตั้ง Library
 npm install
+
+# 3. ติดตั้งเบราว์เซอร์สำหรับ Playwright
 npx playwright install chromium
 ```
-**อย่าลืมสร้างไฟล์ `.env` ตามตัวอย่างในไฟล์ README นี้ก่อนรันเทส!**
+
+### 2. สร้างไฟล์ Environment (`.env`)
+คัดลอกข้อความด้านล่างนี้ไปสร้างไฟล์ชื่อ `.env` ไว้ที่ Root ของโปรเจค (ห้ามลืม! ⚠️)
+```text
+ACCOUNT_URL=http://127.0.0.1:8081
+RESTRICTION_URL=http://127.0.0.1:8086
+API_CLIENT_ID=MY_LOCAL_CLIENT
+API_CLIENT_SECRET=LOCAL_SECRET_PASS
+```
+
+---
+
+## 📂 โครงสร้างโปรเจค (Project Structure)
+
+```text
+api-test-playwright-native/
+├── lib/                     # 🧠 ส่วนสมองและเครื่องมือกลาง (The Engine)
+│   ├── api/                 # 🚀 API Definitions: เก็บ URL และฟังก์ชันยิง API แยกตาม Service
+│   ├── GlobalVars.js        # 📦 State Management: เก็บตัวแปรกลาง (เหมือน pm.globals)
+│   ├── TestHelper.js        # 🛠️ Utilities: ตัวช่วยสร้าง UUID, Date, และข้อมูลสุ่ม
+│   └── Utils.js             # ✅ Assertion Engine: ตัวตรวจสอบข้อมูล JSON (รองรับ Regex/Mandatory)
+├── tests/                   # 🧪 สคริปต์ทดสอบ (Test Scenarios)
+│   └── *.spec.js            # ไฟล์ทดสอบแยกตามฟีเจอร์หรือ Scenario
+├── .env                     # 🔑 Local Configuration (ไม่ถูกอัปโหลดขึ้น Git)
+├── Jenkinsfile              # ⚙️ สคริปต์ควบคุมการรันบน CI/CD (Jenkins)
+└── playwright.config.js     # 🛠️ การตั้งค่าหลักของ Playwright
+```
+
+---
+
+## 🧪 การรันชุดทดสอบ (Running Tests)
+
+```bash
+# รันเทสทั้งหมด
+npx playwright test
+
+# รันเฉพาะไฟล์ที่ต้องการ
+npx playwright test tests/test02-scene1.spec.js
+
+# ดูรายงานผลการทดสอบ (HTML Report)
+npx playwright show-report
+```
+
+---
+
+## ☁️ การใช้งานบน Jenkins
+โปรเจคนี้รองรับการรันแบบ Pipeline พร้อม Parameters:
+1. **ACCOUNT_URL**: ระบุ URL ของ API ที่ต้องการเทส (เช่น UAT/Dev)
+2. **TEST_SCOPE**: เลือกเทสทั้งหมด หรือเฉพาะบาง Scene
+
+---
+
+## 💡 แนวทางการเขียนเทส (Best Practices)
+1. **Don't Repeat Yourself (DRY)**: หากต้องใช้ API เส้นเดิมซ้ำ ให้สร้างเป็น Method ใน `lib/api/`
+2. **Modular Assertions**: ใช้ `utils.TestSuccess(expectedData, response)` เพื่อตรวจสอบข้อมูล
+3. **Sensitive Data**: ห้ามใส่ Password หรือ Secret ลงในโค้ดโดยตรง ให้ใช้ผ่าน `.env` หรือ `GlobalVars`
+
+
+
+## ถ้าจะยกเลิก Rebase ที่ค้างอยู่:
+   1.  git rebase --abort
+
+   2. เริ่ม Rebase ใหม่ (ใช้ตัวเลข HEAD แทนจะง่ายกว่าครับ):
+      สมมติว่าคุณต้องการย้อนกลับไปแก้ commit ลำดับที่ 2 จากบนสุด:
+      git rebase -i HEAD~2
+
+   3. ทำตามขั้นตอนเดิมใน Vim:
+       * กด i
+       * เปลี่ยน pick เป็น reword (หรือแค่ r)
+       * กด Esc
+       * พิมพ์ :wq แล้วกด Enter
+       * (หน้าจอใหม่จะเด้งมาให้แก้ข้อความ)
+       * แก้ข้อความเสร็จ กด Esc ➔ พิมพ์ :wq ➔ กด Enter
+
+   4. Force Push:
+   git push --force origin main
+
