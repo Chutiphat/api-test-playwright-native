@@ -4,7 +4,7 @@ pipeline {
     parameters {
         string(name: 'ACCOUNT_URL', defaultValue: 'http://uat-api.example.com', description: 'Enter API URL')
         choice(name: 'TEST_SCENARIO', choices: ['ALL_SCENES', 'ExchangeRates (Scene 1)', 'CreatePost (Scene 2)', 'BatchFlow (E2E S3)'], description: 'Choose API/Scenario')
-        string(name: 'DISCORD_WEBHOOK_URL', defaultValue: '', description: 'Discord Webhook URL (Required for notification)')
+        string(name: 'DISCORD_WEBHOOK_URL', defaultValue: 'https://discord.com/api/webhooks/1489125982274322622/EE0N8tpWT-3qFZ5ZmAT9rDS19QOyWbPzUaj7LcAi2hyq3ngXZEJEg_fv5G-3rj0trY7o', description: 'Discord Webhook URL (Required for notification)')
     }
 
     environment {

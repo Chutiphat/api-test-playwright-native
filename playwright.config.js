@@ -1,5 +1,7 @@
 // @ts-check
 const { defineConfig, devices } = require('@playwright/test');
+const path = require('path');
+const NotifyHelper = require('./lib/NotifyHelper');
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -11,20 +13,37 @@ module.exports = defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   
-  /* 📊 Reporting */
   reporter: [
     ['html'],
-    ['json', { outputFile: 'test-results/summary.json' }]
-  ],
+    ['monocart-reporter', {  
+        name: "API Test Report",
+        outputFile: './test-results/automation-report.html',
+        
+        onEnd: async (reportData) => {
+            console.log('🏁 Playwright test finished. Initializing notification...');
+            
+            // ⏳ รอสักครู่เพื่อให้ไฟล์รายงานเขียนลงดิสก์เสร็จสมบูรณ์จริงๆ
+            await new Promise(res => setTimeout(res, 2000));
 
-  /* 🏁 Global Teardown: รันหลังจบเทสทั้งหมด */
-  globalTeardown: require.resolve('./lib/GlobalTeardown'),
+            const reportPath = path.resolve(__dirname, 'test-results/automation-report.html');
+            const isCI = !!process.env.CI;
+            const reportUrl = isCI ? `${process.env.BUILD_URL}playwright-report/` : "Attached below";
+            const message = `**Run Location:** ${isCI ? "☁️ Jenkins CI" : "💻 Local Machine"}\n**Online Report:** ${reportUrl}`;
+            
+            // ส่งแจ้งเตือนและรอให้ส่งเสร็จสมบูรณ์
+            await NotifyHelper.sendToDiscordWithFile(message, reportPath, "success");
+            
+            // ⏳ รออีกนิดเพื่อให้มั่นใจว่า Network ส่งข้อมูลเสร็จก่อนจบ process
+            await new Promise(res => setTimeout(res, 3000));
+            console.log('🏁 All done.');
+        }
+    }]
+  ],
 
   timeout: 60000,
   expect: { timeout: 10000 },
   
   use: {
-    /* 🔑 extraHTTPHeaders: ใส่ Header พื้นฐานที่จะถูกส่งไปในทุก Request */
     extraHTTPHeaders: {
       'accept': 'application/json',
       'Content-Type': 'application/json',
