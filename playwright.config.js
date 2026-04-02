@@ -10,7 +10,12 @@ module.exports = defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
-  reporter: 'html',
+  
+  /* 📊 Reporting */
+  reporter: [
+    ['html'],
+    ['json', { outputFile: 'test-results/summary.json' }]
+  ],
 
   /* 🏁 Global Teardown: รันหลังจบเทสทั้งหมด */
   globalTeardown: require.resolve('./lib/GlobalTeardown'),
@@ -23,10 +28,9 @@ module.exports = defineConfig({
     extraHTTPHeaders: {
       'accept': 'application/json',
       'Content-Type': 'application/json',
-      'x-devops-key': 'z6JBqLeoa2KZBSciDAnBRb4Cq6n8tK95',
-      // เพิ่มค่าเริ่มต้นที่คุณต้องการใช้ในเกือบทุก Scene
-      'x-devops-src': 'ops-portal',
-      'x-devops-dest': 'ops-portal',
+      'x-devops-key': process.env.DEVOPS_KEY || 'xxxxxxxxxxx',
+      'x-devops-src': 'xxxxxx',
+      'x-devops-dest': 'xxxxxx',
     },
     trace: 'on-first-retry',
   },
