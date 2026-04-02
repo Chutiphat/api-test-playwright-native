@@ -12,11 +12,11 @@ api-test-playwright-native/
 │   ├── api/                 # 🚀 API Definitions: เก็บ URL และวิธีการยิง API
 │   │   ├── AccountApi.js    # API จัดการบัญชี (Port 8081)
 │   │   ├── BatchApi.js      # API สั่งรัน Batch (Port 8085)
-│   │   ├── S3Helper.js      # AWS S3 Utilities (Upload/Check/Read)
 │   │   ├── ExchangeApi.js   # ตัวอย่าง API ภายนอก
 │   │   └── JsonPlaceholderApi.js
 │   ├── GlobalVars.js        # 📦 State & Config Management (pm.globals)
 │   ├── TestHelper.js        # 🛠️ Utilities: สร้าง UUID, Date, ข้อมูลสุ่ม
+│   ├── S3Helper.js          # ☁️ AWS S3 Utilities (Upload/Check/Read)
 │   └── Utils.js             # ✅ Assertion Engine: ตัวตรวจสอบ JSON แบบละเอียด
 ├── tests/                   # 🧪 สคริปต์ทดสอบ (Test Scenarios)
 │   ├── batch-e2e-flow.spec.js # เทส E2E: Upload ➔ Batch ➔ S3 Verify

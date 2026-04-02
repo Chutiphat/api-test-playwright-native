@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 const BatchApi = require('../lib/api/BatchApi');
-const S3Helper = require('../lib/api/S3Helper');
+const S3Helper = require('../lib/S3Helper');
 const TestHelper = require('../lib/TestHelper');
 const Utils = require('../lib/Utils');
 
