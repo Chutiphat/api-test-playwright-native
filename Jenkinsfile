@@ -2,54 +2,34 @@ pipeline {
     agent any
 
     parameters {
-        string(name: 'ACCOUNT_URL', defaultValue: 'http://uat-api.example.com', description: 'Enter API URL (e.g. http://10.x.x.x:8081)')
-        
-        // 🎯 เมนูสำหรับเลือกเส้นที่จะเทส (Scenario Selection)
-        choice(name: 'TEST_SCENARIO', 
-               choices: [
-                   'ALL_SCENES', 
-                   'ExchangeRates (Scene 1)', 
-                   'CreatePost (Scene 2)', 
-                   'BatchFlow (E2E S3)'
-               ], 
-               description: 'โปรดเลือก API หรือ Scenario ที่ต้องการทดสอบ')
+        string(name: 'ACCOUNT_URL', defaultValue: 'http://uat-api.example.com', description: 'Enter API URL')
+        choice(name: 'TEST_SCENARIO', choices: ['ALL_SCENES', 'ExchangeRates (Scene 1)', 'CreatePost (Scene 2)', 'BatchFlow (E2E S3)'], description: 'Choose API/Scenario')
+        string(name: 'SLACK_WEBHOOK_URL', defaultValue: '', description: 'Slack Webhook URL (optional)')
     }
 
     environment {
-        // ดึงค่า URL ไปใช้งานในโค้ดผ่าน process.env.ACCOUNT_URL
         ACCOUNT_URL = "${params.ACCOUNT_URL}"
+        SLACK_WEBHOOK_URL = "${params.SLACK_WEBHOOK_URL}"
     }
 
     stages {
         stage('1. Checkout') { steps { checkout scm } }
-        
-        stage('2. Setup Environment') {
+        stage('2. Setup') {
             steps {
                 sh 'npm install'
                 sh 'npx playwright install --with-deps chromium'
             }
         }
-
-        stage('3. Execute Testing') {
+        stage('3. Run Tests') {
             steps {
                 script {
-                    // ตรวจสอบเงื่อนไขตามที่เลือกจากหน้าจอ Jenkins
+                    def testCmd = "npx playwright test"
                     switch(params.TEST_SCENARIO) {
-                        case 'ExchangeRates (Scene 1)':
-                            sh 'npx playwright test tests/test02-scene1.spec.js || true'
-                            break
-                        case 'CreatePost (Scene 2)':
-                            sh 'npx playwright test tests/test02-scene2.spec.js || true'
-                            break
-                        case 'BatchFlow (E2E S3)':
-                            sh 'npx playwright test tests/batch-e2e-flow.spec.js || true'
-                            break
-                        case 'ALL_SCENES':
-                        default:
-                            // รันทุกไฟล์ในโฟลเดอร์ tests/
-                            sh 'npx playwright test || true'
-                            break
+                        case 'ExchangeRates (Scene 1)': testCmd += " tests/test02-scene1.spec.js"; break
+                        case 'CreatePost (Scene 2)': testCmd += " tests/test02-scene2.spec.js"; break
+                        case 'BatchFlow (E2E S3)': testCmd += " tests/batch-e2e-flow.spec.js"; break
                     }
+                    sh "${testCmd} || true"
                 }
             }
         }
@@ -57,17 +37,35 @@ pipeline {
 
     post {
         always {
-            // 📊 แสดงผล Report บน Jenkins
             publishHTML(target: [
-                allowMissing: false,
-                alwaysLinkToLastBuild: true,
-                keepAll: true,
-                reportDir: 'playwright-report',
-                reportFiles: 'index.html',
-                reportName: 'Playwright API Test Report'
+                allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true,
+                reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright API Test Report'
             ])
-            // เก็บ Artifacts (Trace/Screenshots)
             archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true
+        }
+        
+        success {
+            script {
+                if (env.SLACK_WEBHOOK_URL) {
+                    sh """
+                    curl -X POST -H 'Content-type: application/json' \
+                    --data '{"text":"✅ *Build Success: ${env.JOB_NAME}* [Build #${env.BUILD_NUMBER}]\nScenario: ${params.TEST_SCENARIO}\nReport: ${env.BUILD_URL}playwright-report/"}' \
+                    ${env.SLACK_WEBHOOK_URL}
+                    """
+                }
+            }
+        }
+        
+        failure {
+            script {
+                if (env.SLACK_WEBHOOK_URL) {
+                    sh """
+                    curl -X POST -H 'Content-type: application/json' \
+                    --data '{"text":"❌ *Build Failed: ${env.JOB_NAME}* [Build #${env.BUILD_NUMBER}]\nScenario: ${params.TEST_SCENARIO}\nCheck errors: ${env.BUILD_URL}"}' \
+                    ${env.SLACK_WEBHOOK_URL}
+                    """
+                }
+            }
         }
     }
 }
