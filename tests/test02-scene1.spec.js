@@ -28,13 +28,13 @@ test.describe('ExchangeRates (Scene 1)', () => {
         // รวมการเช็กทุกอย่างไว้ใน data_assert ก้อนเดียว
         // เพื่อให้ Utils.js แสดงผลแบบ expected vs actual ใน Report อัตโนมัติ
         const data_assert = {
-            "time_last_update_unix": 1775001751,
+            "time_last_update_unix": 1775088151,
             "base_code": "THB",
-            "time_last_update_utc": /^Wed, 01 Apr 2026 \d{2}:\d{2}:\d{2} \+\d{4}$/,
+            "time_last_update_utc": /^Thu, 02 Apr 2026 \d{2}:\d{2}:\d{2} \+\d{4}$/,
             "rates": {
                 "THB": 1,
-                "JOD": 0.02165,
-                "USD": 0.030536,
+                "JOD": 0.021787,
+                "USD": 0.03073,
             }
         };
         

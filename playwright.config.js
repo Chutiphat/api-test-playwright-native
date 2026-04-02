@@ -12,6 +12,9 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
 
+  /* 🏁 Global Teardown: รันหลังจบเทสทั้งหมด */
+  globalTeardown: require.resolve('./lib/GlobalTeardown'),
+
   timeout: 60000,
   expect: { timeout: 10000 },
   
