@@ -3,7 +3,7 @@ const Utils = require('../lib/Utils');
 const TestHelper = require('../lib/TestHelper');
 const ExchangeApi = require('../lib/api/ExchangeApi');
 
-test.describe('Postman Collection: test02 - Scene 1', () => {
+test.describe('ExchangeRates (Scene 1)', () => {
     const utils = new Utils();
 
     test('scene1: GET Latest THB Rates', async ({ request }) => {

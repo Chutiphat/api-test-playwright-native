@@ -3,7 +3,7 @@ const Utils = require('../lib/Utils');
 const TestHelper = require('../lib/TestHelper');
 const JsonPlaceholderApi = require('../lib/api/JsonPlaceholderApi');
 
-test.describe('Postman Collection: test02 - Scene 2', () => {
+test.describe('CreatePost (Scene 2)', () => {
     const utils = new Utils();
 
     test('scene2: POST Create Post', async ({ request }) => {

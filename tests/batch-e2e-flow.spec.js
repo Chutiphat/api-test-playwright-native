@@ -8,7 +8,7 @@ const Utils = require('../lib/Utils');
  * 🎬 E2E Scenario: รัน Batch Restriction และตรวจสอบไฟล์ผลลัพธ์
  * อัปเดตตาม API: http://localhost:8085/deposit/v1/batch/create
  */
-test.describe('E2E Batch Flow: Restriction Process', () => {
+test.describe('BatchFlow (E2E S3)', () => {
     const utils = new Utils();
     const s3 = new S3Helper();
     
