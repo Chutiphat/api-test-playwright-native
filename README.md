@@ -1,68 +1,71 @@
 # 📘 API Test Automation (Playwright Native)
 
-โปรเจคนี้ใช้แนวคิด **Modular Design** (แยกส่วนการทำงาน) เพื่อให้โค้ดอ่านง่าย แก้ไขที่เดียว และรองรับการทำ E2E Flow ที่ซับซ้อนได้อย่างยืดหยุ่น
+โปรเจคทดสอบ API อัตโนมัติมาตรฐาน Enterprise ออกแบบตามแนวคิด **Modular Design** เพื่อความยืดหยุ่นสูงสุด รองรับ E2E Flow, ระบบไฟล์ S3 และการรายงานผลแบบ Hybrid
 
 ---
 
-## 📂 1. โครงสร้างโฟลเดอร์ (Folder Structure)
+## ✨ ฟีเจอร์เด่น (Key Features)
+
+### 🚀 1. Modular API Repository
+แยก Logic การยิง API ออกจากสคริปต์ทดสอบ ทำให้แก้ไข Path หรือ URL ได้ในที่เดียวที่ `lib/api/`
+
+### ✅ 2. Advanced JSON Validation (`Utils.js`)
+ระบบตรวจสอบ JSON ที่ถอดแบบมาจาก Postman รองรับการเช็กแบบ:
+- `mandatory`: ต้องมีค่าและไม่ว่าง
+- `optional`: มีก็ได้ไม่มีก็ได้
+- `Regex`: ตรวจสอบรูปแบบ (เช่น วันที่, UUID)
+- **Expected vs Actual**: แสดงผลการเปรียบเทียบชัดเจนในทุกรายงาน
+
+### 📦 3. Global State Management (`GlobalVars.js`)
+จำลอง `pm.globals` ใน Postman เพื่อส่งค่าข้าม API เช่น เก็บ `accountNo` จาก API แรกไปใช้ใน API ที่สอง
+
+### ☁️ 4. AWS S3 Lifecycle Management
+Helper สำหรับจัดการไฟล์บน S3 แบบครบวงจร (Upload -> Check -> Read -> Delete) เหมาะสำหรับงาน Batch Testing
+
+### 📊 5. Hybrid Reporting System
+- **Allure Report**: รายงานหลักสำหรับการดูประวัติย้อนหลังและ Dashboard สวยงาม
+- **Monocart Reporter**: สร้างไฟล์ HTML ไฟล์เดียว (`automation-report.html`) สำหรับส่งเข้า Discord
+
+### 🎮 6. Discord Notification with Logs & Files
+แจ้งเตือนเข้า Discord อัตโนมัติเมื่อรันจบ พร้อม:
+- ตารางสรุปจำนวน Pass/Fail/Duration
+- Log รายละเอียดเคสที่พัง (Failed Logs)
+- **แนบไฟล์รายงานตัวเต็ม** เข้าห้องแชททันที
+
+---
+
+## 📂 โครงสร้างโฟลเดอร์ (Folder Structure)
 
 ```text
 api-test-playwright-native/
-├── lib/                     # 🧠 ส่วนสมองและเครื่องมือกลาง (The Engine)
-│   ├── api/                 # 🚀 API Definitions: เก็บ URL และวิธีการยิง API
-│   │   ├── AccountApi.js    # API จัดการบัญชี (Port 8081)
-│   │   ├── BatchApi.js      # API สั่งรัน Batch (Port 8085)
-│   │   ├── ExchangeApi.js   # ตัวอย่าง API ภายนอก
-│   │   └── JsonPlaceholderApi.js
-│   ├── GlobalVars.js        # 📦 State & Config Management (pm.globals)
-│   ├── TestHelper.js        # 🛠️ Utilities: สร้าง UUID, Date, ข้อมูลสุ่ม
-│   ├── S3Helper.js          # ☁️ AWS S3 Utilities (Upload/Check/Read)
-│   └── Utils.js             # ✅ Assertion Engine: ตัวตรวจสอบ JSON แบบละเอียด
-├── tests/                   # 🧪 สคริปต์ทดสอบ (Test Scenarios)
-│   ├── batch-e2e-flow.spec.js # เทส E2E: Upload ➔ Batch ➔ S3 Verify
-│   ├── test02-scene1.spec.js  # เทส Scene แยกตามฟีเจอร์
-│   └── test02-scene2.spec.js
-├── .env                     # 🔑 ตั้งค่า URL/AWS Keys (Local)
-├── Jenkinsfile              # ⚙️ สคริปต์ควบคุมการรันอัตโนมัติบน Jenkins
-└── playwright.config.js     # 🛠️ การตั้งค่าหลัก (Timeout, Default Headers)
+├── lib/                     # 🧠 The Engine (ส่วนประมวลผลหลัก)
+│   ├── api/                 # 🚀 API Definitions (Path & Method)
+│   ├── GlobalVars.js        # 📦 ตัวเก็บตัวแปรส่งต่อข้าม API
+│   ├── TestHelper.js        # 🛠️ ตัวช่วยสร้าง UUID, Date, Headers
+│   ├── S3Helper.js          # ☁️ เครื่องมือจัดการ AWS S3
+│   ├── NotifyHelper.js      # 🎮 ระบบส่งข้อความ/ไฟล์เข้า Discord
+│   └── Utils.js             # ✅ ระบบตรวจสอบ JSON (Assertion)
+├── tests/                   # 🧪 Scenarios (สคริปต์ทดสอบ)
+├── .env                     # 🔑 ตั้งค่า URLs/Secrets (Local Only)
+├── Jenkinsfile              # ⚙️ Pipeline สำหรับรันอัตโนมัติบน Jenkins
+└── playwright.config.js     # 🛠️ คอนฟิกหลักและระบบแจ้งเตือน
 ```
 
 ---
 
-## 🔍 2. รายละเอียดส่วนประกอบสำคัญ (Core Components)
+## 🚀 วิธีใช้งาน (Commands)
 
-### 🚀 **lib/api/ (API Repository)**
-*   **หลักการ**: 1 Service = 1 ไฟล์ เพื่อความง่ายในการดูแลรักษา
-*   **Dynamic URL**: ดึง Base URL จาก `GlobalVars` โดยระบุชื่อเฉพาะเจาะจง (เช่น `orch_deposit_batch_trigger`)
-
-### ✅ **lib/Utils.js (The Assertion Engine)**
-*   **การใช้งาน**: เรียก `utils.TestSuccess(expectedData, response)`
-*   **ฟีเจอร์**: ตรวจสอบแบบ `mandatory`, `optional`, **Regex**, และ **Data Type** พร้อมแสดงผลแบบ **Expected vs Actual** ในทุกฟิลด์
-
-### 📦 **lib/GlobalVars.js (State Management)**
-*   **State**: ใช้เก็บค่าจาก API หนึ่งไปใช้อีก API หนึ่ง (จำลอง `pm.globals.set/get`)
-*   **Config**: รองรับการ Override ค่าจากไฟล์ `.env` และ Environment Variables ของ Jenkins
-
----
-
-## ☁️ 3. การรันบน Jenkins (CI/CD)
-โปรเจคนี้รองรับการรันผ่าน **Jenkins Pipeline** พร้อมระบบเลือกเคส (**TEST_SCOPE**):
-
-### **สโคปการรันที่มีให้เลือก:**
-1.  **ALL**: รันไฟล์เทสทั้งหมดในโปรเจค
-2.  **Scene 1 Only**: รันเฉพาะการเช็ก Exchange Rates
-3.  **Scene 2 Only**: รันเฉพาะการสร้าง Post
-4.  **Batch Flow**: (เพิ่มใหม่) รันขั้นตอน E2E สำหรับ Batch และ S3
-
----
-
-## 🚀 การตั้งค่าเครื่องสำหรับทีมใหม่ (Setup)
+### **การรันเทสปกติ:**
 ```bash
-# 1. Clone & Install
-git clone https://github.com/Chutiphat/api-test-playwright-native.git
-npm install
-npx playwright install chromium
+npx playwright test
+```
 
-# 2. สร้างไฟล์ .env
-# คัดลอกค่าจากตัวอย่างในไฟล์ README นี้ไปใส่ในไฟล์ .env ของคุณ
+### **รันเทสพร้อมเปิด Allure Report ทันที (แนะนำ!):**
+```bash
+npm run test:allure
+```
+
+### **ดูรายงานย้อนหลัง:**
+```bash
+allure serve allure-results
 ```

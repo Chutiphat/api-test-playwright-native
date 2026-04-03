@@ -24,14 +24,12 @@ module.exports = defineConfig({
         onEnd: async (reportData) => {
             const reportPath = path.resolve(__dirname, 'test-results/automation-report.html');
             const isCI = !!process.env.CI;
-            const reportUrl = isCI ? `${process.env.BUILD_URL}playwright-report/` : "Attached below";
+            const reportUrl = isCI ? `${process.env.BUILD_URL}allure/` : "Attached below";
             
-            // 📊 ดึงสถิติจากโครงสร้างจริง (ใช้ .value)
+            // 📊 สรุปตัวเลข (ดึงค่าด้วย .value)
             const s = reportData.summary;
             const total = s.tests?.value ?? 0;
             const failed = s.failed?.value ?? 0;
-            const flaky = s.flaky?.value ?? 0;
-            const skipped = s.skipped?.value ?? 0;
             const passed = s.passed?.value ?? 0;
             const duration = (reportData.duration / 1000).toFixed(1);
             
@@ -39,8 +37,6 @@ module.exports = defineConfig({
             table += "┌─────────────┬──────────────────────┐\n";
             table += `│ Tests       │ ${total.toString().padEnd(20)} │\n`;
             table += `│ ├ Failed    │ ${failed.toString().padEnd(20)} │\n`;
-            table += `│ ├ Flaky     │ ${flaky.toString().padEnd(20)} │\n`;
-            table += `│ ├ Skipped   │ ${skipped.toString().padEnd(20)} │\n`;
             table += `│ └ Passed    │ ${passed.toString().padEnd(20)} │\n`;
             table += `│ Duration    │ ${(duration + "s").padEnd(20)} │\n`;
             table += "└─────────────┴──────────────────────┘\n";
@@ -49,6 +45,8 @@ module.exports = defineConfig({
             const message = `**Run Location:** ${isCI ? "☁️ Jenkins CI" : "💻 Local Machine"}\n**Online Report:** ${reportUrl}\n\n${table}`;
             const status = failed > 0 ? "failure" : "success";
             
+            // ⏳ รอสักนิดให้ Network พร้อม
+            await new Promise(r => setTimeout(r, 2000));
             await NotifyHelper.sendToDiscordWithFile(message, reportPath, status);
         }
     }]

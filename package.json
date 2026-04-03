@@ -6,21 +6,21 @@
   "scripts": {
     "test": "playwright test",
     "test:ci": "playwright test --reporter=html,list",
-    "test:scene1": "playwright test tests/test02-scene1.spec.js"
+    "test:allure": "playwright test; allure serve allure-results",
+    "allure:generate": "allure generate allure-results --clean",
+    "allure:open": "allure open allure-report"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
-    "@playwright/test": "^1.59.0",
-    "@types/node": "^25.5.0",
-    "allure-playwright": "^3.6.0",
-    "monocart-reporter": "^2.10.0",
+    "@aws-sdk/client-s3": "^3.766.0",
+    "@playwright/test": "^1.51.0",
+    "@types/node": "^22.13.10",
+    "allure-playwright": "^3.2.0",
+    "dotenv": "^16.4.7",
+    "monocart-reporter": "^2.9.13",
     "newman": "^6.2.2"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.1022.0",
-    "dotenv": "^17.3.1"
   }
 }
