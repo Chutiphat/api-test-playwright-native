@@ -5,6 +5,8 @@ node_modules/
 # 🧪 Playwright Specific
 test-results/
 playwright-report/
+allure-results/
+allure-report/
 blob-report/
 playwright/.cache/
 

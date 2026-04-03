@@ -4,7 +4,7 @@ pipeline {
     parameters {
         string(name: 'ACCOUNT_URL', defaultValue: 'http://uat-api.example.com', description: 'Enter API URL')
         choice(name: 'TEST_SCENARIO', choices: ['ALL_SCENES', 'ExchangeRates (Scene 1)', 'CreatePost (Scene 2)', 'BatchFlow (E2E S3)'], description: 'Choose API/Scenario')
-        string(name: 'DISCORD_WEBHOOK_URL', defaultValue: 'https://discord.com/api/webhooks/1489125982274322622/EE0N8tpWT-3qFZ5ZmAT9rDS19QOyWbPzUaj7LcAi2hyq3ngXZEJEg_fv5G-3rj0trY7o', description: 'Discord Webhook URL (Required for notification)')
+        string(name: 'DISCORD_WEBHOOK_URL', defaultValue: 'https://discord.com/api/webhooks/1489125982274322622/EE0N8tpWT-3qFZ5ZmAT9rDS19QOyWbPzUaj7LcAi2hyq3ngXZEJEg_fv5G-3rj0trY7o', description: 'Discord Webhook URL')
     }
 
     environment {
@@ -29,7 +29,6 @@ pipeline {
                         case 'CreatePost (Scene 2)': testCmd += " tests/test02-scene2.spec.js"; break
                         case 'BatchFlow (E2E S3)': testCmd += " tests/batch-e2e-flow.spec.js"; break
                     }
-                    // รันเทส (การแจ้งเตือนจะถูกจัดการโดย GlobalTeardown ของ Playwright อัตโนมัติ)
                     sh "${testCmd} || true"
                 }
             }
@@ -38,10 +37,15 @@ pipeline {
 
     post {
         always {
+            // 📊 1. Playwright HTML Report
             publishHTML(target: [
                 allowMissing: false, alwaysLinkToLastBuild: true, keepAll: true,
                 reportDir: 'playwright-report', reportFiles: 'index.html', reportName: 'Playwright API Test Report'
             ])
+            
+            // 📊 2. Allure Report (ต้องลงปลั๊กอิน Allure ใน Jenkins ก่อน)
+            allure includeProperties: false, jdk: '', results: [[path: 'allure-results']]
+            
             archiveArtifacts artifacts: 'test-results/**', allowEmptyArchive: true
         }
     }

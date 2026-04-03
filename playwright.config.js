@@ -3,6 +3,8 @@ const { defineConfig, devices } = require('@playwright/test');
 const path = require('path');
 const NotifyHelper = require('./lib/NotifyHelper');
 
+require('dotenv').config();
+
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -15,27 +17,39 @@ module.exports = defineConfig({
   
   reporter: [
     ['html'],
+    ['allure-playwright', { outputFolder: 'allure-results' }],
     ['monocart-reporter', {  
         name: "API Test Report",
         outputFile: './test-results/automation-report.html',
-        
         onEnd: async (reportData) => {
-            console.log('🏁 Playwright test finished. Initializing notification...');
-            
-            // ⏳ รอสักครู่เพื่อให้ไฟล์รายงานเขียนลงดิสก์เสร็จสมบูรณ์จริงๆ
-            await new Promise(res => setTimeout(res, 2000));
-
             const reportPath = path.resolve(__dirname, 'test-results/automation-report.html');
             const isCI = !!process.env.CI;
             const reportUrl = isCI ? `${process.env.BUILD_URL}playwright-report/` : "Attached below";
-            const message = `**Run Location:** ${isCI ? "☁️ Jenkins CI" : "💻 Local Machine"}\n**Online Report:** ${reportUrl}`;
             
-            // ส่งแจ้งเตือนและรอให้ส่งเสร็จสมบูรณ์
-            await NotifyHelper.sendToDiscordWithFile(message, reportPath, "success");
+            // 📊 ดึงสถิติจากโครงสร้างจริง (ใช้ .value)
+            const s = reportData.summary;
+            const total = s.tests?.value ?? 0;
+            const failed = s.failed?.value ?? 0;
+            const flaky = s.flaky?.value ?? 0;
+            const skipped = s.skipped?.value ?? 0;
+            const passed = s.passed?.value ?? 0;
+            const duration = (reportData.duration / 1000).toFixed(1);
             
-            // ⏳ รออีกนิดเพื่อให้มั่นใจว่า Network ส่งข้อมูลเสร็จก่อนจบ process
-            await new Promise(res => setTimeout(res, 3000));
-            console.log('🏁 All done.');
+            let table = "```\n";
+            table += "┌─────────────┬──────────────────────┐\n";
+            table += `│ Tests       │ ${total.toString().padEnd(20)} │\n`;
+            table += `│ ├ Failed    │ ${failed.toString().padEnd(20)} │\n`;
+            table += `│ ├ Flaky     │ ${flaky.toString().padEnd(20)} │\n`;
+            table += `│ ├ Skipped   │ ${skipped.toString().padEnd(20)} │\n`;
+            table += `│ └ Passed    │ ${passed.toString().padEnd(20)} │\n`;
+            table += `│ Duration    │ ${(duration + "s").padEnd(20)} │\n`;
+            table += "└─────────────┴──────────────────────┘\n";
+            table += "```";
+
+            const message = `**Run Location:** ${isCI ? "☁️ Jenkins CI" : "💻 Local Machine"}\n**Online Report:** ${reportUrl}\n\n${table}`;
+            const status = failed > 0 ? "failure" : "success";
+            
+            await NotifyHelper.sendToDiscordWithFile(message, reportPath, status);
         }
     }]
   ],
