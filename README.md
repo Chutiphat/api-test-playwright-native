@@ -14,17 +14,16 @@
 - **Database**: รัน SQL เช็กข้อมูลใน **PostgreSQL** โดยตรงผ่าน `DbHelper.js`
 - **AWS Logs**: ดึง Log จาก **CloudWatch** มาตรวจสอบ Error หรือ Success message ผ่าน `AwsLogHelper.js`
 
-### ☁️ 3. AWS S3 Lifecycle
-จัดการไฟล์บน S3 แบบครบวงจร (**Upload ➔ Check ➔ Read ➔ Delete**) เหมาะสำหรับงานเทส Batch Process
+### ☁️ 3. AWS S3 & SFTP File Management
+จัดการไฟล์รับ-ส่งสำหรับงาน Batch:
+- **S3**: Upload/Check/Read/Delete ไฟล์บน AWS S3
+- **SFTP**: รับ-ส่งไฟล์กับเครื่อง Server โดยตรงผ่านโปรโตคอล SFTP
 
 ### ✅ 4. Advanced JSON Assertions (`Utils.js`)
 ระบบตรวจสอบข้อมูลที่อ่านง่าย แสดงผลแบบ **Expected vs Actual** ทุกฟิลด์ รองรับ Regex และ Mandatory check
 
 ### 🎮 5. Discord Smart Notification
-แจ้งเตือนสรุปผลเข้า Discord ทันทีที่รันจบ พร้อม:
-- **ตารางสรุป**: จำนวน Pass/Fail และเวลาที่ใช้
-- **Failed Logs**: แสดงข้อผิดพลาดของเคสที่พังให้เห็นทันที
-- **File Attachment**: แนบไฟล์รายงานตัวเต็ม (.html) ให้โหลดดูได้เลย
+แจ้งเตือนสรุปผลเข้า Discord ทันทีที่รันจบ พร้อมตารางสรุป, Log เคสที่พัง และแนบไฟล์รายงานตัวเต็ม
 
 ### 📊 6. Allure Dashboard
 รายงานผลระดับสากลที่โชว์กราฟสถิติและประวัติการรันย้อนหลัง (บน Jenkins)
@@ -40,6 +39,7 @@ api-test-playwright-native/
 │   ├── DbHelper.js          # 🗄️ Database: เครื่องมือรัน SQL (Postgres)
 │   ├── AwsLogHelper.js      # 🔍 AWS Logs: เครื่องมือดึง CloudWatch Logs
 │   ├── S3Helper.js          # ☁️ AWS S3: เครื่องมือจัดการไฟล์ S3
+│   ├── SftpHelper.js        # 📂 SFTP: เครื่องมือรับ-ส่งไฟล์ผ่าน SFTP
 │   ├── NotifyHelper.js      # 🎮 Discord: ระบบส่งแจ้งเตือนและไฟล์
 │   ├── TestHelper.js        # 🛠️ Utilities: สร้าง UUID, Date, Header Templates
 │   └── Utils.js             # ✅ Assertion: ตัวตรวจสอบ JSON (Postman Style)
