@@ -8,16 +8,12 @@ test.describe('CreatePost (Scene 2)', () => {
 
     test('scene2: POST Create Post', async ({ request }) => {
         const postApi = new JsonPlaceholderApi(request);
-        const { requestId } = TestHelper.generateApiHeaders();
+        const { requestId, traceParent } = TestHelper.generateApiHeaders();
         const { date, time } = TestHelper.getRequestDateTime();
 
         const headers = {
-            'x-request-id': requestId,
-            'x-job-id': requestId,
-            'x-real-ip': '127.0.0.1',
-            'datetime': `${date}T${time}`,
-            'accept': 'application/json',
-            'Content-Type': 'application/json'
+            ...TestHelper.getOpsHeaders(requestId, traceParent),
+            'datetime': `${date}T${time}`
         };
 
         const requestBody = {
@@ -31,8 +27,7 @@ test.describe('CreatePost (Scene 2)', () => {
         const response = await postApi.createPost(headers, requestBody);
         
         await utils.LogResponse(response);
-        const rs = await response.json();
-
+        
         const data_assert = {
             "rq_body": {
                 "title": "foo",

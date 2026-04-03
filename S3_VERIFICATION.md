@@ -1,36 +1,49 @@
-# ☁️ คู่มือการตรวจสอบ AWS S3 (Batch Testing)
+# ☁️ คู่มือการใช้งาน AWS S3 & CloudWatch Logs
 
-ใช้สำหรับเคสที่ต้องตรวจสอบไฟล์ผลลัพธ์ใน S3 หลังจากสั่งรัน Batch Process
-
----
-
-## 🛠️ เครื่องมือ: `lib/S3Helper.js`
-เรียกใช้ Class นี้เพื่อจัดการไฟล์แบบครบวงจร:
-- `uploadFile(bucket, key, content)`: เตรียมไฟล์ Input
-- `fileExists(bucket, key)`: เช็กว่าไฟล์มาหรือยัง (ส่งคืน true/false)
-- `getFileContent(bucket, key)`: อ่านข้อมูลในไฟล์มาเช็กฟิลด์
-- `deleteFile(bucket, key)`: ล้างข้อมูลหลังเทสเสร็จ
+โปรเจคนี้รองรับการตรวจสอบทั้งไฟล์ใน S3 และ Log ใน CloudWatch โดยไม่ต้องเข้าหน้า AWS Console
 
 ---
 
-## 🧪 ตัวอย่างการเขียนสคริปต์ (E2E)
+## 🔑 1. การเตรียมสิทธิ์เข้าถึง (AWS Permissions)
+
+สคริปต์จะทำงานผ่าน **Programmatic Access** คุณต้องขอสิทธิ์จากแอดมินดังนี้:
+
+### **IAM Policy ที่จำเป็น:**
+- **AmazonS3FullAccess**: สำหรับ Upload/Check/Read/Delete ไฟล์
+- **CloudWatchLogsReadOnlyAccess**: สำหรับการดึง Log มาตรวจสอบ
+
+### **การตั้งค่าในโปรเจค (.env):**
+```text
+AWS_ACCESS_KEY_ID=กุญแจ_ID_ของคุณ
+AWS_SECRET_ACCESS_KEY=รหัสกุญแจ_ของคุณ
+AWS_REGION=ap-southeast-1
+```
+
+---
+
+## 🔍 2. การตรวจสอบ Log (CloudWatch)
+
+ใช้ `AwsLogHelper.js` เพื่อดึงข้อมูล Log มาเช็กความถูกต้อง:
+
 ```javascript
-const s3 = new S3Helper();
+const AwsLogHelper = require('../lib/AwsLogHelper');
+const logs = new AwsLogHelper();
 
-test('Full Flow', async () => {
-    // 1. Upload Input
-    await s3.uploadFile("my-bucket", "in.csv", "data...");
-
-    // 2. Poll for Output (วนเช็กไฟล์)
-    for (let i = 0; i < 10; i++) {
-        if (await s3.fileExists("my-bucket", "out.json")) break;
-        await new Promise(r => setTimeout(r, 5000));
-    }
-
-    // 3. Verify & Cleanup
-    const content = await s3.getFileContent("my-bucket", "out.json");
-    expect(JSON.parse(content).status).toBe("SUCCESS");
-    await s3.deleteFile("my-bucket", "in.csv");
+test('Verify CloudWatch', async () => {
+    const group = '/aws/lambda/my-service';
+    const pattern = 'SUCCESS'; // คำที่ต้องการค้นหา
+    const events = await logs.findLogs(group, pattern);
+    
+    expect(events.length).toBeGreaterThan(0);
 });
 ```
-*ดูตัวอย่างตัวเต็มที่ `tests/batch-e2e-flow.spec.js`*
+
+---
+
+## 📂 3. การจัดการไฟล์ (S3 Lifecycle)
+
+ใช้ `S3Helper.js` สำหรับ Flow งาน Batch:
+1.  **Upload**: `await s3.uploadFile(bucket, key, content)`
+2.  **Poll & Check**: ใช้ลูปคู่กับ `await s3.fileExists(bucket, key)`
+3.  **Read**: `await s3.getFileContent(bucket, key)`
+4.  **Cleanup**: `await s3.deleteFile(bucket, key)` (ใส่ใน afterEach เสมอ)

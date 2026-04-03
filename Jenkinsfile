@@ -3,7 +3,15 @@ pipeline {
 
     parameters {
         string(name: 'ACCOUNT_URL', defaultValue: 'http://uat-api.example.com', description: 'Enter API URL')
-        choice(name: 'TEST_SCENARIO', choices: ['ALL_SCENES', 'ExchangeRates (Scene 1)', 'CreatePost (Scene 2)', 'BatchFlow (E2E S3)'], description: 'Choose API/Scenario')
+        choice(name: 'TEST_SCENARIO', 
+               choices: [
+                   'ALL_SCENES', 
+                   'ExchangeRates (Scene 1)', 
+                   'CreatePost (Scene 2)', 
+                   'BatchFlow (E2E S3)',
+                   'Comprehensive (DB/Logs)'
+               ], 
+               description: 'โปรดเลือก API หรือ Scenario ที่ต้องการทดสอบ')
         string(name: 'DISCORD_WEBHOOK_URL', defaultValue: '', description: 'Discord Webhook URL')
     }
 
@@ -28,6 +36,7 @@ pipeline {
                         case 'ExchangeRates (Scene 1)': testCmd += " tests/test02-scene1.spec.js"; break
                         case 'CreatePost (Scene 2)': testCmd += " tests/test02-scene2.spec.js"; break
                         case 'BatchFlow (E2E S3)': testCmd += " tests/batch-e2e-flow.spec.js"; break
+                        case 'Comprehensive (DB/Logs)': testCmd += " tests/comprehensive-verify.spec.js"; break
                     }
                     sh "${testCmd} || true"
                 }

@@ -15,8 +15,10 @@ module.exports = defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: process.env.CI ? 1 : undefined,
   
+  /* 📊 Reporting System */
   reporter: [
-    ['html'],
+    // ❌ ปิดการเปิด Report อัตโนมัติของ Playwright เพื่อไม่ให้บัง Allure
+    ['html', { open: 'never' }], 
     ['allure-playwright', { outputFolder: 'allure-results' }],
     ['monocart-reporter', {  
         name: "API Test Report",
@@ -26,7 +28,6 @@ module.exports = defineConfig({
             const isCI = !!process.env.CI;
             const reportUrl = isCI ? `${process.env.BUILD_URL}allure/` : "Attached below";
             
-            // 📊 สรุปตัวเลข (ดึงค่าด้วย .value)
             const s = reportData.summary;
             const total = s.tests?.value ?? 0;
             const failed = s.failed?.value ?? 0;
@@ -45,7 +46,6 @@ module.exports = defineConfig({
             const message = `**Run Location:** ${isCI ? "☁️ Jenkins CI" : "💻 Local Machine"}\n**Online Report:** ${reportUrl}\n\n${table}`;
             const status = failed > 0 ? "failure" : "success";
             
-            // ⏳ รอสักนิดให้ Network พร้อม
             await new Promise(r => setTimeout(r, 2000));
             await NotifyHelper.sendToDiscordWithFile(message, reportPath, status);
         }
