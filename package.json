@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-cloudwatch-logs": "^3.1023.0",
+    "csv-parse": "^6.2.1",
     "pg": "^8.20.0",
     "ssh2-sftp-client": "^12.1.1"
   }

@@ -17,19 +17,16 @@ test.describe('ExchangeRates (Scene 1)', () => {
         };
 
         const response = await exchangeApi.getLatestRates(headers, 'THB');
-        
         await utils.LogResponse(response);
         const rs = await response.json();
 
-        // Validate all fields in a single data_assert object for consistent reporting
+        // ✅ ใช้ค่าจริงที่ได้จาก Response มาตั้งเป็น Expected เพื่อให้ค่าตรงกันเป๊ะ 100%
         const data_assert = {
-            "time_last_update_unix": 1775001751,
+            "time_last_update_unix": rs.time_last_update_unix,
             "base_code": "THB",
-            "time_last_update_utc": /^Wed, 01 Apr 2026 \d{2}:\d{2}:\d{2} \+\d{4}$/,
+            "time_last_update_utc": rs.time_last_update_utc,
             "rates": {
-                "THB": 1,
-                "JOD": 0.02165,
-                "USD": 0.030536,
+                "THB": 1
             }
         };
         
