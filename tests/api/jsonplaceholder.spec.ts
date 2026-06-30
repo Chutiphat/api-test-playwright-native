@@ -182,4 +182,13 @@ test.describe('JSONPlaceholder API full coverage', () => {
     const body = await response.json();
     expect(body).toStrictEqual({});
   });
+
+  test('FAIL CASE /posts/1 returns a deliberately wrong title for report validation', async ({ request }) => {
+    const response = await request.get(`${baseUrl}/posts/1`);
+    expect(response.status()).toBe(200);
+    assertJsonPlaceholderHeaders(response.headers());
+
+    const body = await response.json();
+    expect(body.title).toBe('This title does not exist');
+  });
 });

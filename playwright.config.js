@@ -1,15 +1,15 @@
-import { defineConfig, devices } from '@playwright/test';
-import fs from 'fs';
-import path from 'path';
-import { config } from 'dotenv';
-import NotifyHelper from './lib/NotifyHelper';
+// @ts-check
+const { defineConfig, devices } = require('@playwright/test');
+const fs = require('fs');
+const path = require('path');
+const NotifyHelper = require('./lib/NotifyHelper');
 
-config();
+require('dotenv').config();
 
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
-export default defineConfig({
+module.exports = defineConfig({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -19,8 +19,7 @@ export default defineConfig({
   /* 📊 Reporting System */
   reporter: [
     // ❌ ปิดการเปิด Report อัตโนมัติของ Playwright เพื่อไม่ให้บัง Allure
-    ['html', { open: 'never', outputFolder: 'playwright-report' }],
-    ['list'],
+    ['html', { open: 'never' }], 
     ['allure-playwright', { outputFolder: 'allure-results' }],
     ['monocart-reporter', {  
         name: "API Test Report",
@@ -102,7 +101,6 @@ export default defineConfig({
   ],
 
   timeout: 60000,
-  expect: { timeout: 10000 },
   use: {
     extraHTTPHeaders: {
       'accept': 'application/json',
