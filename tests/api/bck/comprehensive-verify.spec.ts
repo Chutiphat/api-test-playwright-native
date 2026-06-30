@@ -1,5 +1,5 @@
-const { test, expect } = require('@playwright/test');
-const Utils = require('../lib/Utils');
+import { test, expect } from '@playwright/test';
+const Utils = require('../../lib/Utils');
 
 test.describe('Comprehensive Verification (Mock Mode)', () => {
     const utils = new Utils();

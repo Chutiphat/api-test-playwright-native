@@ -1,5 +1,5 @@
-const { test, expect } = require('@playwright/test');
-const Utils = require('../lib/Utils');
+import { test, expect } from '@playwright/test';
+const Utils = require('../../lib/Utils');
 
 /**
  * 💡 Sandbox Demo - สำหรับทดลองรันเพื่อดู Report และ Discord Notification

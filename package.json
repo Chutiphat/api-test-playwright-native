@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "playwright test",
-    "test:ci": "playwright test --reporter=html,list",
-    "test:allure": "playwright test; allure serve allure-results",
+    "test": "playwright test --config=playwright.config.ts",
+    "test:ci": "playwright test --config=playwright.config.ts --reporter=html,list",
+    "test:allure": "playwright test --config=playwright.config.ts; allure serve allure-results",
     "allure:generate": "allure generate allure-results --clean",
-    "allure:open": "allure open allure-report"
+    "allure:open": "allure open allure-report",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

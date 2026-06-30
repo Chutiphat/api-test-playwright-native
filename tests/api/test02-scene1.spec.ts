@@ -1,7 +1,7 @@
-const { test, expect } = require('@playwright/test');
-const Utils = require('../lib/Utils');
-const TestHelper = require('../lib/TestHelper');
-const ExchangeApi = require('../lib/api/ExchangeApi');
+import { test, expect } from '@playwright/test';
+const Utils = require('../../lib/Utils');
+const TestHelper = require('../../lib/TestHelper');
+const ExchangeApi = require('../../lib/api/ExchangeApi');
 
 test.describe('ExchangeRates (Scene 1)', () => {
     const utils = new Utils();

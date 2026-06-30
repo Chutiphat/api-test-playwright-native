@@ -1,7 +1,7 @@
-const { test, expect } = require('@playwright/test');
-const BatchApi = require('../lib/api/BatchApi');
-const S3Helper = require('../lib/S3Helper');
-const Utils = require('../lib/Utils');
+import { test, expect } from '@playwright/test';
+const BatchApi = require('../../lib/api/BatchApi');
+const S3Helper = require('../../lib/S3Helper');
+const Utils = require('../../lib/Utils');
 const fs = require('fs');
 const path = require('path');
 

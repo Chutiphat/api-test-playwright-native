@@ -1,5 +1,5 @@
-const { test } = require('@playwright/test');
-const Utils = require('../lib/Utils');
+import { test } from '@playwright/test';
+const Utils = require('../../lib/Utils');
 
 /**
  * 🎬 Scenario: JSON Schema Validation
