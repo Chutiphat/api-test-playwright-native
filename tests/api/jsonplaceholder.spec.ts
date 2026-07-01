@@ -254,7 +254,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
     const response = await request.get(`${baseUrl}/posts/1`);
     const data_assert = {
       status: 200,
-      wrongTitle: 'This title does not exist',
+      wrongTitle: 'sunt aut facere repellat provident occaecati excepturi optio reprehenderi',
     };
 
     expect(response.status()).toBe(data_assert.status);

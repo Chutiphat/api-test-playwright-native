@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-const Utils = require('../../lib/Utils');
+const Utils = require('../lib/Utils');
 
 test.describe('E2E Scene: Account Lifecycle (Mock Mode)', () => {
     const utils = new Utils();
