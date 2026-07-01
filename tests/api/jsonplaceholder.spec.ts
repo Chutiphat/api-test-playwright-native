@@ -29,6 +29,7 @@ const assertUserShape = (body: any) => {
 
 test.describe('JSONPlaceholder API full coverage', () => {
   test('GET /posts returns an array of posts with expected headers', async ({ request }) => {
+    const requestBody = {};
     const response = await request.get(`${baseUrl}/posts`);
     const data_assert = {
       status: 200,
@@ -48,6 +49,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('GET /posts/1 returns a single post and validates response body fields', async ({ request }) => {
+    const requestBody = {};
     const response = await request.get(`${baseUrl}/posts/1`);
     const data_assert = {
       status: 200,
@@ -70,6 +72,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('GET /posts?userId=1 returns only posts for the user', async ({ request }) => {
+    const requestBody = {};
     const response = await request.get(`${baseUrl}/posts?userId=1`);
     const data_assert = {
       status: 200,
@@ -90,6 +93,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('GET /comments?postId=1 returns comments for the specific post', async ({ request }) => {
+    const requestBody = {};
     const response = await request.get(`${baseUrl}/comments?postId=1`);
     const data_assert = {
       status: 200,
@@ -114,6 +118,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('GET /users/1 returns a user with nested address and company data', async ({ request }) => {
+    const requestBody = {};
     const response = await request.get(`${baseUrl}/users/1`);
     const data_assert = {
       status: 200,
@@ -133,6 +138,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('GET /todos/1 returns a todo item with completed field', async ({ request }) => {
+    const requestBody = {};
     const response = await request.get(`${baseUrl}/todos/1`);
     const data_assert = {
       status: 200,
@@ -153,7 +159,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('POST /posts creates a new resource and returns the created object', async ({ request }) => {
-    const payload = {
+    const requestBody = {
       title: 'Testing JSONPlaceholder',
       body: 'This is a test payload',
       userId: 99,
@@ -162,11 +168,11 @@ test.describe('JSONPlaceholder API full coverage', () => {
       headers: {
         'content-type': 'application/json; charset=UTF-8',
       },
-      data: payload,
+      data: requestBody,
     });
     const data_assert = {
       status: 201,
-      body: payload,
+      body: requestBody,
       idType: 'number',
     };
 
@@ -180,7 +186,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('PUT /posts/1 replaces the post resource completely', async ({ request }) => {
-    const payload = {
+    const requestBody = {
       id: 1,
       title: 'Updated title',
       body: 'Updated body content',
@@ -190,11 +196,11 @@ test.describe('JSONPlaceholder API full coverage', () => {
       headers: {
         'content-type': 'application/json; charset=UTF-8',
       },
-      data: payload,
+      data: requestBody,
     });
     const data_assert = {
       status: 200,
-      responseBody: payload,
+      responseBody: requestBody,
     };
 
     expect(response.status()).toBe(data_assert.status);
@@ -205,19 +211,19 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('PATCH /posts/1 updates a single field and retains other fields', async ({ request }) => {
-    const payload = {
+    const requestBody = {
       title: 'Partially updated title',
     };
     const response = await request.patch(`${baseUrl}/posts/1`, {
       headers: {
         'content-type': 'application/json; charset=UTF-8',
       },
-      data: payload,
+      data: requestBody,
     });
     const data_assert = {
       status: 200,
       id: 1,
-      title: payload.title,
+      title: requestBody.title,
     };
 
     expect(response.status()).toBe(data_assert.status);
@@ -229,6 +235,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('DELETE /posts/1 returns an empty JSON object and correct status', async ({ request }) => {
+    const requestBody = {};
     const response = await request.delete(`${baseUrl}/posts/1`);
     const data_assert = {
       status: [200, 204],
@@ -243,6 +250,7 @@ test.describe('JSONPlaceholder API full coverage', () => {
   });
 
   test('FAIL CASE /posts/1 returns a deliberately wrong title for report validation', async ({ request }) => {
+    const requestBody = {};
     const response = await request.get(`${baseUrl}/posts/1`);
     const data_assert = {
       status: 200,
